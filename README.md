@@ -9,8 +9,8 @@ Cas pratique Daisy, sujet C : concevoir le modèle de données et la logique de 
 ## Démarrage rapide
 
 ```bash
-git clone <url-du-depot>
-cd daisy-facturation
+git clone https://github.com/Yaniss9/cas-etude-C-Daisy.git
+cd cas-etude-C-Daisy
 nvm use          # Node 22, version fixée dans .nvmrc
 npm ci           # installe exactement les versions du package-lock.json
 npm test         # lance les tests du moteur de facturation
