@@ -1,0 +1,2 @@
+-- Données de démonstration chargées par `npm run db:reset` (après les migrations).
+-- Vide pour l'instant : le catalogue de l'atelier Terre & Feu sera ajouté avec le schéma.
