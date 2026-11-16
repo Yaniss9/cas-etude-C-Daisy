@@ -229,7 +229,7 @@ docs/regles-metier.md  ← l'analyse détaillée des 12 cas
 2. La reconnaissance du chiffre d'affaires des stages et des abonnements, et un export comptable par période.
 3. Brancher l'interface du rapprochement sur les vrais paiements du registre, avec le détail transaction par transaction.
 
-**Sur l'usage de l'IA :** j'ai utilisé un assistant IA tout au long du projet, pour analyser l'énoncé, comprendre les notions comptables et relire mon code. Les règles métier et les arbitrages sont les miens.
+**Sur l'usage de l'IA :** j'ai utilisé un assistant IA tout au long du projet, pour analyser l'énoncé, comprendre les notions comptables, relire mon code et, sur la fin, écrire certaines fonctions que j'ai ensuite relues. Les règles métier et les arbitrages sont les miens.
 
 ---
 
