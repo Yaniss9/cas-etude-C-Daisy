@@ -14,7 +14,6 @@ export type Entitlement = {
     saleId: string
     unit: "class" | "euro"
     initialQuantity: number
-    remainingQuantity: number
     unitValueCents: number
     expiresAt: string
 }
