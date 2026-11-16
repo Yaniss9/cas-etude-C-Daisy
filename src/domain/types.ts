@@ -47,7 +47,7 @@ export type Payment = {
 export type Consumption = {
     id: string
     entitlementId: string
-    kind : "attended" | "late_cancellation" | "expired"
+    kind: "attended" | "redeemed" | "late_cancellation" | "expired" | "refunded"
     quantity: number
     occurredAt: string
 }

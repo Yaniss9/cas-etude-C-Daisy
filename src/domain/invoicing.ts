@@ -47,11 +47,17 @@ export function nextCreditNoteNumber(ledger: Ledger): string {
     return `AV-${String(next).padStart(4, "0")}`
 }
 
-export function issueCreditNote(ledger: Ledger, invoiceNumber: string, grossCents: number, issuedAt: string): Ledger {
+export function issueCreditNote(
+    ledger: Ledger,
+    invoiceNumber: string,
+    grossCents: number,
+    issuedAt: string,
+    label = `Annulation de la facture ${invoiceNumber}`,
+): Ledger {
     const invoice = ledger.documents.find((document) => document.number === invoiceNumber)
-    const label = `Annulation de la facture ${invoiceNumber}`
-    if (invoice === undefined)
+    if (invoice === undefined) {
         throw new Error(`Invoice ${invoiceNumber} not found`)
+    }
     const creditNote: BillingDocument = {
         number: nextCreditNoteNumber(ledger),
         kind: "credit_note",
@@ -63,7 +69,17 @@ export function issueCreditNote(ledger: Ledger, invoiceNumber: string, grossCent
     }
     const newLedger = {...ledger, documents: [...ledger.documents, creditNote]}
     return newLedger
+}
+
+export function findInvoiceForSale(ledger: Ledger, saleId: string): BillingDocument {
+    const invoice = ledger.documents.find(
+        (document) => document.saleId === saleId && document.kind === "invoice",
+    )
+    if (invoice === undefined) {
+        throw new Error(`No invoice found for sale ${saleId}`)
     }
+    return invoice
+}
 
 export function correctInvoice(
     ledger: Ledger,
