@@ -73,3 +73,23 @@ export function earnedRevenue(ledger: Ledger, entitlementId: string): RevenueEve
             amounts: splitVat(consumption.quantity * entitlement.unitValueCents),
         }))
 }
+
+export function extendEntitlement(ledger: Ledger, entitlementId: string, newExpiresAt: string, extendedOn: string): Ledger {
+    const expiry = ledger.consumptions.find(
+        (consumption) => consumption.entitlementId === entitlementId && consumption.kind === "expired",
+    )
+    if (expiry === undefined) {
+        throw new Error(`Entitlement ${entitlementId} has not expired`)
+    }
+    const entitlements = ledger.entitlements.map((entitlement) =>
+        entitlement.id === entitlementId ? { ...entitlement, expiresAt: newExpiresAt } : entitlement,
+    )
+    const reversal: Consumption = {
+        id: `reinstate_${entitlementId}`,
+        entitlementId,
+        kind: "expired",
+        quantity: -expiry.quantity,
+        occurredAt: extendedOn,
+    }
+    return { ...ledger, entitlements, consumptions: [...ledger.consumptions, reversal] }
+}
