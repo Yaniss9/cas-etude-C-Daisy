@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# journal de bord brut : tenu en local, condensé dans le README à la fin
+docs/journal-de-bord.md

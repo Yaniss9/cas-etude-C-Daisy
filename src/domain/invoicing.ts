@@ -1,7 +1,16 @@
 import type { Ledger } from "@/domain/ledger";
 import { splitVat } from "@/domain/money";
 import type { Sale, BillingDocument } from "@/domain/types";
+import { documentTotal } from "@/domain/payments";
 
+
+export type InvoiceDraft = {
+    saleId: string
+    customerId: string
+    issuedAt: string
+    label: string
+    grossCents: number
+}
 
 export function nextInvoiceNumber(ledger: Ledger): string {
     const invoices = ledger.documents.filter((document) => document.kind === "invoice")
@@ -9,17 +18,27 @@ export function nextInvoiceNumber(ledger: Ledger): string {
     return `F-${String(next).padStart(4, "0")}`
 }
 
-export function issueInvoice(ledger: Ledger, sale: Sale, label: string): Ledger{
+export function createInvoice(ledger: Ledger, draft: InvoiceDraft): Ledger {
     const invoice: BillingDocument = {
         number: nextInvoiceNumber(ledger),
         kind: "invoice",
-        issuedAt: sale.soldAt,
-        customerId: sale.buyerId,
-        saleId: sale.id,
-        lines: [{ label, amounts: splitVat(sale.grossCents) }],
+        issuedAt: draft.issuedAt,
+        customerId: draft.customerId,
+        saleId: draft.saleId,
+        lines: [{ label: draft.label, amounts: splitVat(draft.grossCents) }],
     }
     const newLedger = {...ledger, documents: [...ledger.documents, invoice]}
     return newLedger
+}
+
+export function issueInvoice(ledger: Ledger, sale: Sale, label: string): Ledger {
+    return createInvoice(ledger, {
+        saleId: sale.id,
+        customerId: sale.buyerId,
+        issuedAt: sale.soldAt,
+        label,
+        grossCents: sale.grossCents,
+    })
 }
 
 export function nextCreditNoteNumber(ledger: Ledger): string {
@@ -45,3 +64,24 @@ export function issueCreditNote(ledger: Ledger, invoiceNumber: string, grossCent
     const newLedger = {...ledger, documents: [...ledger.documents, creditNote]}
     return newLedger
     }
+
+export function correctInvoice(
+    ledger: Ledger,
+    invoiceNumber: string,
+    correctGrossCents: number,
+    correctedAt: string,
+    label: string,
+): Ledger {
+    const invoice = ledger.documents.find((document) => document.number === invoiceNumber)
+    if (invoice === undefined) {
+        throw new Error(`Invoice ${invoiceNumber} not found`)
+    }
+    const cancelled = issueCreditNote(ledger, invoiceNumber, documentTotal(invoice), correctedAt)
+    return createInvoice(cancelled, {
+        saleId: invoice.saleId,
+        customerId: invoice.customerId,
+        issuedAt: correctedAt,
+        label,
+        grossCents: correctGrossCents,
+    })
+}

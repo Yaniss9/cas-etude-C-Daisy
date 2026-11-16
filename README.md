@@ -72,24 +72,22 @@ supabase/
 ├── migrations/          ← schéma SQL (tables, contraintes, immuabilité des factures)
 └── seed.sql             ← données de démonstration
 docs/
-├── regles-metier.md     ← principes, analyse des 12 cas, décisions retenues
-└── journal-de-bord.md   ← journal brut de mes choix et réflexions
+└── regles-metier.md     ← principes, analyse des 12 cas, décisions retenues
 ```
 
-**Le principe :** toutes les règles métier vivent dans `src/domain`, qui ne dépend ni de Next.js, ni de Supabase, ni du navigateur. La base de données et l'interface ne servent qu'à faire entrer et sortir des données. Les règles critiques (une facture émise ne se modifie pas, la numérotation est continue) sont vérifiées par le moteur **et** imposées par Postgres. Le raisonnement complet est dans [`docs/journal-de-bord.md`](docs/journal-de-bord.md) (entrée de 11:38).
+**Le principe :** toutes les règles métier vivent dans `src/domain`, qui ne dépend ni de Next.js, ni de Supabase, ni du navigateur. La base de données et l'interface ne servent qu'à faire entrer et sortir des données. Les règles critiques (une facture émise ne se modifie pas, la numérotation est continue) sont vérifiées par le moteur **et** imposées par Postgres.
 
 **Stack :** Next.js (App Router), TypeScript en mode strict, Tailwind, Supabase (PostgreSQL 17), Vitest.
 
 ## Documentation
 
 - [`docs/regles-metier.md`](docs/regles-metier.md) : les 4 axes (vendu, encaissé, consommé, dû), les 10 principes, l'analyse des 12 cas et les décisions retenues.
-- [`docs/journal-de-bord.md`](docs/journal-de-bord.md) : le journal tenu au fil de l'eau, qui sera condensé à la fin.
 
 ## Avancement
 
 - [x] Analyse des 12 cas et règles métier
 - [x] Installation du projet (Next.js, Vitest, Supabase, CI)
-- [ ] Calcul des montants (centimes, HT / TVA / TTC)
+- [x] Calcul des montants (centimes, HT / TVA / TTC)
 - [ ] Moteur : ventes, documents, paiements, consommations
 - [ ] Tests des cas obligatoires : C4, C6, C9, C10
 - [ ] Tests des autres cas
