@@ -2,7 +2,7 @@
 
 Cas pratique Daisy, sujet C : modèle de données et logique de facturation d'un atelier créatif (cours à l'unité, cartes de 10 séances, abonnements, bons cadeaux, stages).
 
-**En une phrase :** un moteur de facturation en TypeScript pur, qui ne confond jamais ce qui est **vendu**, **encaissé**, **consommé** et **dû**, où une facture émise ne se modifie jamais, et dont chaque règle est prouvée par un test (67 tests, dont les cas obligatoires C4, C6, C9 et C10).
+**En une phrase :** un moteur de facturation en TypeScript pur, qui ne confond jamais ce qui est **vendu**, **encaissé**, **consommé** et **dû**, où une facture émise ne se modifie jamais, et dont chaque règle est prouvée par un test : 90 tests, couvrant **les 12 cas** de l'énoncé, dont les obligatoires C4, C6, C9 et C10.
 
 ---
 
@@ -26,7 +26,7 @@ git clone https://github.com/Yaniss9/cas-etude-C-Daisy.git
 cd cas-etude-C-Daisy
 nvm use          # Node 22, version fixée dans .nvmrc
 npm ci           # installe exactement les versions du package-lock.json
-npm test         # lance les 67 tests du moteur de facturation
+npm test         # lance les 90 tests du moteur de facturation
 ```
 
 Aucune base de données ni variable d'environnement n'est nécessaire pour les tests : le moteur est du TypeScript pur.
@@ -51,12 +51,11 @@ Aucune base de données ni variable d'environnement n'est nécessaire pour les t
 | Calcul des montants (centimes, HT / TVA / TTC, arrondi symétrique) | ✅ Testé sur 100 000 montants |
 | Modèle et registre immuable | ✅ |
 | Cas obligatoires **C4, C6, C9, C10** | ✅ Implémentés et testés |
-| C1, C2 | ✅ Implémentés et testés |
-| C3, C5, C7, C8, C11, C12 | 🟡 Règle écrite ; implémentation et tests à compléter (voir [suite](#limites-connues-et-suite)) |
+| Tous les autres cas (C1, C2, C3, C5, C7, C8, C11, C12) | ✅ Implémentés et testés |
 | Schéma SQL Supabase | ⬜ Non commencé : conception décrite plus bas |
 | Interface du rapprochement bancaire (C12) | ⬜ Non commencé |
 
-J'ai choisi de livrer d'abord les quatre cas obligatoires de bout en bout, avec leurs tests, plutôt que les douze à moitié.
+J'ai d'abord livré les quatre cas obligatoires de bout en bout, avec leurs tests, puis les huit autres, qui réutilisent pour la plupart les mêmes briques.
 
 ---
 
@@ -101,16 +100,16 @@ Pourquoi séparer la vente du document ? Une même vente peut avoir plusieurs do
 |---|---|---|---|
 | **C1** Cours simple | Facture à la date de la vente, adressée au payeur | F-0001 du 12/01 : 75 € TTC = 62,50 € HT + 12,50 € TVA | ✅ testé |
 | **C2** Annulation dans les délais | La facture ne bouge pas ; avoir total + remboursement | AV-0001 de −75 € ; facturé net 0 € | ✅ testé |
-| **C3** Annulation hors délai | L'atelier garde l'argent ; aucun nouveau document ; chiffre d'affaires reconnu à la date prévue du cours ; la TVA n'est pas reversée (prix complet d'une prestation non remboursable, pas des arrhes) | 75 € conservés | 🟡 règle écrite |
+| **C3** Annulation hors délai | Délai : 48 h avant le cours, 48 h pile comprises. Hors délai, l'atelier garde l'argent ; aucun nouveau document ; chiffre d'affaires reconnu à la date prévue du cours ; la TVA n'est pas reversée (prix complet d'une prestation non remboursable, pas des arrhes) | 75 € conservés | ✅ testé |
 | **C4** Carte remboursée | Les séances utilisées repassent au prix unitaire (la remise est la contrepartie de l'engagement sur 10 séances) | **425 € remboursés** (650 − 3 × 75) ; avoir partiel de −425 € ; 225 € conservés | ✅ testé |
-| **C5** Carte expirée | Le solde (4 × 65 = 260 €) devient du chiffre d'affaires à l'expiration ; prolongation = on rouvre le droit et on annule cette reconnaissance, sans nouvelle facture | 260 € gagnés à l'expiration | 🟡 règle écrite (fonction d'expiration déjà en place) |
+| **C5** Carte expirée | Le solde (4 × 65 = 260 €) devient du chiffre d'affaires à l'expiration ; prolongation = on rouvre le droit et on annule cette reconnaissance, sans nouvelle facture | 260 € gagnés à l'expiration, puis annulés par la prolongation | ✅ testé |
 | **C6** Bon cadeau | Bon univoque : facture à **Julien** (payeur) avec TVA à la vente ; **Léa** est bénéficiaire ; le solde expiré devient du chiffre d'affaires | Gagné en 3 temps : 75 €, 40 €, puis 35 € à l'expiration | ✅ testé |
-| **C7** Abonnement résilié | Pas de prorata : « sans engagement » vaut pour les mois futurs ; accès jusqu'à la fin de la période payée (04/04) ; cours réservés dans la période honorés | Aucun remboursement | 🟡 règle écrite |
-| **C8** Prélèvement échoué | **Une seule facture** (la vente de la période est ferme) ; deux tentatives de paiement ; créance de 120 € entre les deux ; TVA exigible au paiement réel | 1 facture, 2 tentatives | 🟡 règle écrite |
+| **C7** Abonnement résilié | Pas de prorata : « sans engagement » vaut pour les mois futurs ; accès jusqu'à la fin de la période payée (04/04) ; cours réservés dans la période honorés | Accès jusqu'au 04/04, aucun remboursement | ✅ testé |
+| **C8** Prélèvement échoué | **Une seule facture** (la vente de la période est ferme) ; deux tentatives de paiement ; créance de 120 € entre les deux ; TVA exigible au paiement réel | 1 facture, 2 tentatives ; 120 € dus entre les deux | ✅ testé |
 | **C9** Stage en deux fois | **Une seule facture** de 280 € à la réservation, avec échéancier calculé (84 € puis 196 € à J-7) ; annulation jusqu'à J-7 : tout est remboursé sauf l'acompte ; après J-7 : rien | Annulation le 25/02 (J-3) : **rien n'est remboursé** | ✅ testé |
 | **C10** Erreur de facture | Avoir total + nouvelle facture, datés du jour de la correction | **3 documents** : F-0001 (+750 €), AV-0001 (−750 €), F-0002 (+75 €) ; 0 € dû | ✅ testé |
-| **C11** Paiement mixte | Le bon est un **prépaiement déjà facturé**, ni une remise (qui réduirait la base de TVA), ni un simple moyen de paiement | 50 € imputés sur le bon + 25 € par carte | 🟡 règle écrite |
-| **C12** Rapprochement | Deux ponts distincts : du facturé à l'encaissé, puis de l'encaissé au virement Stripe ; l'écart non expliqué est affiché, pas masqué | Écart résiduel de 24,68 € avec les données de l'énoncé | 🟡 règle écrite |
+| **C11** Paiement mixte | Le bon est un **prépaiement déjà facturé**, ni une remise (qui réduirait la base de TVA), ni un simple moyen de paiement ; s'il couvre tout le prix, aucune nouvelle facture (comme en C6) | Facture de 75 € − 50 € de bon = 25 € à payer ; TVA de 4,17 € seulement sur la part payée par carte | ✅ testé |
+| **C12** Rapprochement | Deux ponts distincts : du facturé à l'encaissé, puis de l'encaissé au virement Stripe ; l'écart non expliqué est affiché, pas masqué | Tableau ligne à ligne ; écart non expliqué de 24,68 € affiché | ✅ testé |
 
 **Numérotation :** deux séries continues, `F-` pour les factures et `AV-` pour les avoirs. ⚠️ Je crois les séries distinctes admises si chacune est continue, mais c'est à confirmer avec un expert-comptable.
 
@@ -153,7 +152,7 @@ Bonus : la TVA d'une prestation de services est exigible à l'encaissement. Comm
 ### 4. Comment je teste que la facturation est juste
 
 ```bash
-npm test     # 67 tests, en moins d'une seconde, sans base de données
+npm test     # 90 tests, en moins d'une seconde, sans base de données
 ```
 
 **1. Un fichier de test par cas de l'énoncé** (`tests/cases/`). Chaque test rejoue une histoire et vérifie le résultat, avec des noms qui se lisent comme l'énoncé. Extrait de C4 :
@@ -188,9 +187,14 @@ src/domain/            ← le moteur : TypeScript pur, aucune dépendance
 ├── ledger.ts          le registre immuable (les cinq listes)
 ├── invoicing.ts       factures, avoirs, numérotation, correction (C1, C2, C10)
 ├── payments.ts        paiements, remboursements, facturé / payé / dû
-├── entitlements.ts    droits prépayés, consommations, bon cadeau, expiration (C6)
+├── entitlements.ts    droits prépayés, consommations, bon cadeau, expiration, prolongation (C5, C6)
+├── single-class.ts    annulation d'un cours, règle des 48 h (C2, C3)
 ├── class-card.ts      remboursement de carte (C4)
-└── workshop.ts        échéancier et annulation de stage (C9)
+├── subscription.ts    fin d'accès après résiliation (C7)
+├── workshop.ts        échéancier et annulation de stage (C9)
+├── mixed-payment.ts   paiement mixte bon cadeau + carte (C11)
+├── reconciliation.ts  explication de l'écart avec le virement Stripe (C12)
+└── dates.ts           calculs de dates en UTC (J-7, fin de période, écart en heures)
 tests/                 ← un fichier par module, et tests/cases/ : un fichier par cas
 supabase/              ← configuration de la base locale (schéma à venir)
 docs/regles-metier.md  ← l'analyse détaillée des 12 cas
@@ -212,20 +216,20 @@ docs/regles-metier.md  ← l'analyse détaillée des 12 cas
 ## Limites connues et suite
 
 **Limites assumées :**
-- C3, C5, C7, C8, C11 et C12 ont leur règle écrite, mais pas encore leur test. C5 et C8 reposent sur des fonctions déjà en place (`expireEntitlement`, `amountDue` avec paiement échoué).
-- En C4, les 30 € de remise perdue ne sont pas encore comptés comme chiffre d'affaires gagné (seules les 3 séances à 65 € le sont).
-- Le chiffre d'affaires d'un stage n'est pas encore reconnu à la date du stage.
+- En C4, les 30 € de remise perdue ne sont pas comptés comme chiffre d'affaires gagné (seules les 3 séances à 65 € le sont).
+- Le chiffre d'affaires d'un stage (C9) et d'un abonnement (C7, C8) n'est pas encore reconnu au fil du service : seuls les droits prépayés (cartes, bons, cours à l'unité) le sont.
+- En C8, le délai de grâce pendant lequel Inès peut encore venir aux cours est une règle métier décrite, pas codée.
+- En C12, la commission en pourcentage est calculée sur le total facturé, faute du détail des 87 transactions ; avec le détail réel, on la calculerait transaction par transaction, ce qui réduirait sans doute l'écart inexpliqué.
 - Le bon cadeau polyvalent n'est pas implémenté (aucun cas ne l'exige).
 - Les obligations de facturation électronique (calendrier 2026-2027) sont hors périmètre.
 - ⚠️ Les points de TVA suivent la doctrine publique (BOFiP), mais je ne suis pas comptable : leur application réelle mérite l'avis d'un expert-comptable.
 
 **Ce que je ferais ensuite, dans l'ordre :**
-1. Les tests de C3, C5, C7 et C8 (les fonctions existent presque toutes).
-2. C11 (paiement mixte) et C12 (rapprochement en deux ponts).
-3. Le schéma SQL avec son trigger d'immuabilité et sa numérotation sans trou, testé avec PGlite (Postgres dans Node, sans Docker).
-4. L'interface du rapprochement bancaire, pour répondre à « sans sortir sa calculette ».
+1. Le schéma SQL avec son trigger d'immuabilité et sa numérotation sans trou, testé avec PGlite (Postgres dans Node, sans Docker).
+2. La reconnaissance du chiffre d'affaires des stages et des abonnements, et un export comptable par période.
+3. L'interface du rapprochement bancaire, pour répondre à « sans sortir sa calculette ».
 
-**Sur l'usage de l'IA :** j'ai utilisé Claude tout au long du projet, pour analyser l'énoncé, comprendre les notions comptables et relire mon code. Les règles métier et les arbitrages sont les miens.
+**Sur l'usage de l'IA :** j'ai utilisé un assistant IA tout au long du projet, pour analyser l'énoncé, comprendre les notions comptables, relire mon code et, sur la fin, écrire certaines fonctions que j'ai ensuite relues. Les règles métier et les arbitrages sont les miens.
 
 ---
 
