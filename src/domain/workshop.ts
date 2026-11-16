@@ -1,3 +1,4 @@
+import { subtractDays } from "@/domain/dates";
 import { findInvoiceForSale, issueCreditNote } from "@/domain/invoicing";
 import { findSale } from "@/domain/ledger";
 import type { Ledger } from "@/domain/ledger";
@@ -8,12 +9,6 @@ const DEPOSIT_RATE_PERCENT = 30
 const BALANCE_DAYS_BEFORE_START = 7
 
 export type Installment = { dueOn: string; grossCents: number }
-
-export function subtractDays(isoDate: string, days: number): string {
-    const date = new Date(`${isoDate}T00:00:00Z`)
-    date.setUTCDate(date.getUTCDate() - days)
-    return date.toISOString().slice(0, 10)
-}
 
 export function depositCents(grossCents: number): number {
     return roundHalfAwayFromZero(grossCents * DEPOSIT_RATE_PERCENT / 100)

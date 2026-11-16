@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { issueInvoice } from "@/domain/invoicing";
 import { addSale, createEmptyLedger } from "@/domain/ledger";
 import { amountDue, recordPayment, totalBilled, totalPaid } from "@/domain/payments";
-import { cancelWorkshop, subtractDays, workshopSchedule } from "@/domain/workshop";
+import { subtractDays } from "@/domain/dates";
+import { cancelWorkshop, workshopSchedule } from "@/domain/workshop";
 import type { Ledger } from "@/domain/ledger";
 import type { Payment, Sale } from "@/domain/types";
 
