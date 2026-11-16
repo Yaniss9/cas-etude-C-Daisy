@@ -2,7 +2,7 @@
 
 Cas pratique Daisy, sujet C : modèle de données et logique de facturation d'un atelier créatif (cours à l'unité, cartes de 10 séances, abonnements, bons cadeaux, stages).
 
-**En une phrase :** un moteur de facturation en TypeScript pur, qui ne confond jamais ce qui est **vendu**, **encaissé**, **consommé** et **dû**, où une facture émise ne se modifie jamais, et dont chaque règle est prouvée par un test : 90 tests, couvrant **les 12 cas** de l'énoncé, dont les obligatoires C4, C6, C9 et C10.
+**En une phrase :** un moteur de facturation en TypeScript pur, qui ne confond jamais ce qui est **vendu**, **encaissé**, **consommé** et **dû**, où une facture émise ne se modifie jamais, et dont chaque règle est prouvée par un test : 89 tests, couvrant **les 12 cas** de l'énoncé, dont les obligatoires C4, C6, C9 et C10.
 
 ---
 
@@ -26,7 +26,7 @@ git clone https://github.com/Yaniss9/cas-etude-C-Daisy.git
 cd cas-etude-C-Daisy
 nvm use          # Node 22, version fixée dans .nvmrc
 npm ci           # installe exactement les versions du package-lock.json
-npm test         # lance les 90 tests du moteur de facturation
+npm test         # lance les 89 tests du moteur de facturation
 ```
 
 Aucune base de données ni variable d'environnement n'est nécessaire pour les tests : le moteur est du TypeScript pur.
@@ -152,7 +152,7 @@ Bonus : la TVA d'une prestation de services est exigible à l'encaissement. Comm
 ### 4. Comment je teste que la facturation est juste
 
 ```bash
-npm test     # 90 tests, en moins d'une seconde, sans base de données
+npm test     # 89 tests, en moins d'une seconde, sans base de données
 ```
 
 **1. Un fichier de test par cas de l'énoncé** (`tests/cases/`). Chaque test rejoue une histoire et vérifie le résultat, avec des noms qui se lisent comme l'énoncé. Extrait de C4 :
@@ -229,7 +229,7 @@ docs/regles-metier.md  ← l'analyse détaillée des 12 cas
 2. La reconnaissance du chiffre d'affaires des stages et des abonnements, et un export comptable par période.
 3. Brancher l'interface du rapprochement sur les vrais paiements du registre, avec le détail transaction par transaction.
 
-**Sur l'usage de l'IA :** j'ai utilisé un assistant IA tout au long du projet, pour analyser l'énoncé, comprendre les notions comptables, relire mon code et, sur la fin, écrire certaines fonctions que j'ai ensuite relues. Les règles métier et les arbitrages sont les miens.
+**Sur l'usage de l'IA :** j'ai utilisé un assistant IA tout au long du projet, pour analyser l'énoncé, comprendre les notions comptables et relire mon code. Les règles métier et les arbitrages sont les miens.
 
 ---
 

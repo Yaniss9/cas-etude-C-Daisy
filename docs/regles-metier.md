@@ -1,7 +1,7 @@
 # Sujet C — Analyse approfondie et règles métier
 
-> Document de travail : il servira de base au README (règles écrites noir sur blanc, réponses aux questions).
-> Statut : **brouillon**. Les décisions marquées 🟡 sont à trancher, les recommandations sont signalées par ⭐.
+> Analyse détaillée des 12 cas, qui a servi de base au README. Les décisions D1 à D8 sont tranchées (section 6).
+> Les options marquées 🟡 ont été discutées, l'option retenue est signalée par ⭐. En cas de différence avec le README ou le code, ce sont eux qui font foi.
 > ⚠️ Je ne suis pas comptable : les points de droit ont été vérifiés sur des sources publiques (liste en fin de document), mais ils mériteraient une validation par un expert-comptable avant d'aller en production.
 
 ---
@@ -116,18 +116,18 @@ Comptes simplifiés pour le journal : `411` clients, `512` banque, `4191` prépa
   - 💭 **Insight produit pour Daisy :** avec 70 ateliers, les deux cas existeront. Le régime doit donc être un **paramètre du bon** (`voucher_type`), pas une règle codée en dur.
 - **Qui est le client ?**
   - **Julien** est le client de la **vente du bon** : il reçoit la facture et c'est lui qui a payé.
-  - **Léa** est la **bénéficiaire** des prestations : les documents de chaque cours ou stage sont à son nom.
+  - **Léa** est la **bénéficiaire** : elle utilise le bon sans qu'aucun document ne soit émis à son nom, puisque tout a déjà été facturé à Julien.
 - **Les écritures (bon univoque) :**
 
 | Date | Événement | Document | Chiffre d'affaires | Dette « bon » restante |
 |---|---|---|---|---|
 | 10/12/2026 | Achat par Julien | Facture 150 € TTC (125 HT / 25 TVA) à Julien | 0 | 150 € |
-| 20/01/2027 | Cours de Léa | Facture 75 € à Léa, avec une ligne de déduction « bon n°X −75 € (déjà facturé) », net à payer 0 € | +62,50 HT | 75 € |
-| 15/03/2027 | Imputation de 40 € sur le stage | Ligne de déduction de −40 € sur la facture du stage | Au stage (date du service) | 35 € |
+| 20/01/2027 | Cours de Léa, entièrement payé par le bon | Aucun : le cours était déjà facturé à Julien via le bon | +62,50 HT | 75 € |
+| 15/03/2027 | Léa utilise 40 € du bon sur un stage | Aucun pour la part payée par le bon (s'il restait une part à payer, elle serait facturée avec une ligne de déduction du bon, comme en C11) | +33,33 HT | 35 € |
 | 10/12/2027 | Expiration du solde | Aucun | +29,17 HT (35 € TTC) | 0 € |
 
-- **Quand l'atelier a-t-il gagné l'argent ?** Il l'a **encaissé** le 10/12/2026, mais il l'a **gagné** en trois fois : au cours du 20/01, au stage, et à l'expiration du solde.
-- 💭 Subtilité : Léa « utilise » les 40 € le 15/03, mais le service (le stage) a lieu plus tard. La date d'utilisation n'est pas la date du service.
+- **Quand l'atelier a-t-il gagné l'argent ?** Il l'a **encaissé** le 10/12/2026, mais il l'a **gagné** en trois fois : le 20/01, le 15/03 et à l'expiration du solde.
+- 💭 Simplification assumée : le chiffre d'affaires est reconnu à la date d'utilisation du bon. Pour un stage qui aurait lieu plus tard, il faudrait le reconnaître à la date du stage.
 - **Le solde expiré** devient du chiffre d'affaires à l'expiration (P7). Avec un bon polyvalent, il n'y aurait jamais de TVA sur ces 35 €.
 
 ### C7 — L'abonnement résilié en cours de mois
@@ -188,7 +188,7 @@ Comptes simplifiés pour le journal : `411` clients, `512` banque, `4191` prépa
   1. **Du facturé à l'encaissé :** factures émises en mars − factures de mars non encaissées (impayés, échéances futures) + encaissements de factures d'autres mois − parts réglées par bon ou carte prépayée (non monétaires) = encaissements bruts du mois.
   2. **De l'encaissé au virement Stripe :** encaissements bruts − commissions (1,4 % × brut + 87 × 0,25 €) − remboursements (75 €) = montant reçu.
 - ⚠️ **Les chiffres de l'énoncé ne se rapprochent pas exactement.** Si on applique les commissions aux 4 320 € : 4 320 − 60,48 − 21,75 − 75 = **4 162,77 €**, contre **4 187,45 €** sur le relevé, soit **24,68 € d'écart**. Pour retrouver le relevé, il faudrait environ 4 345,03 € d'encaissements bruts, donc plus que le facturé. C'est probablement voulu : le facturé du mois n'est pas l'encaissé du mois.
-- ⭐ **Ce que montre le système :** un tableau en cascade, ligne à ligne, avec une **dernière ligne « écart non expliqué »** affichée explicitement plutôt que masquée. Chaque ligne est cliquable jusqu'aux transactions concernées. C'est là que l'interface a sa place.
+- ⭐ **Ce que montre le système :** un tableau en cascade, ligne à ligne, avec une **dernière ligne « écart non expliqué »** affichée explicitement plutôt que masquée. C'est ce qu'affiche l'interface (`npm run dev`). Une évolution possible : rendre chaque ligne cliquable jusqu'aux transactions concernées.
 
 ---
 
