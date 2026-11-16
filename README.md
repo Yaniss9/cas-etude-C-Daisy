@@ -36,7 +36,7 @@ Aucune base de données ni variable d'environnement n'est nécessaire pour les t
 | `npm test` | Lance tous les tests (Vitest) |
 | `npm run test:watch` | Relance les tests à chaque modification |
 | `npm run check` | Types + lint + tests : à lancer avant chaque commit (c'est aussi ce que vérifie la CI) |
-| `npm run dev` | Interface Next.js sur http://localhost:3000 (page provisoire) |
+| `npm run dev` | Interface du rapprochement bancaire (C12) sur http://localhost:3000 |
 | `npm run db:start` / `db:reset` / `db:stop` | Base Supabase locale (Docker requis, optionnelle) |
 
 **Prérequis :** Node.js 22 ou plus, npm 10 ou plus. Docker uniquement pour la base locale. La CLI Supabase est une dépendance du projet : rien à installer globalement.
@@ -53,7 +53,7 @@ Aucune base de données ni variable d'environnement n'est nécessaire pour les t
 | Cas obligatoires **C4, C6, C9, C10** | ✅ Implémentés et testés |
 | Tous les autres cas (C1, C2, C3, C5, C7, C8, C11, C12) | ✅ Implémentés et testés |
 | Schéma SQL Supabase | ⬜ Non commencé : conception décrite plus bas |
-| Interface du rapprochement bancaire (C12) | ⬜ Non commencé |
+| Interface du rapprochement bancaire (C12) | ✅ Une page qui explique l'écart ligne par ligne (`npm run dev`) |
 
 J'ai d'abord livré les quatre cas obligatoires de bout en bout, avec leurs tests, puis les huit autres, qui réutilisent pour la plupart les mêmes briques.
 
@@ -227,7 +227,7 @@ docs/regles-metier.md  ← l'analyse détaillée des 12 cas
 **Ce que je ferais ensuite, dans l'ordre :**
 1. Le schéma SQL avec son trigger d'immuabilité et sa numérotation sans trou, testé avec PGlite (Postgres dans Node, sans Docker).
 2. La reconnaissance du chiffre d'affaires des stages et des abonnements, et un export comptable par période.
-3. L'interface du rapprochement bancaire, pour répondre à « sans sortir sa calculette ».
+3. Brancher l'interface du rapprochement sur les vrais paiements du registre, avec le détail transaction par transaction.
 
 **Sur l'usage de l'IA :** j'ai utilisé un assistant IA tout au long du projet, pour analyser l'énoncé, comprendre les notions comptables, relire mon code et, sur la fin, écrire certaines fonctions que j'ai ensuite relues. Les règles métier et les arbitrages sont les miens.
 
@@ -235,4 +235,26 @@ docs/regles-metier.md  ← l'analyse détaillée des 12 cas
 
 ## Partie 2 — Socle commun
 
-*À venir : journal de bord condensé, tri des tickets, question ouverte, et la question que j'aurais posée.*
+### 1. Journal de bord
+
+- **Temps :** environ 5 h, compréhension et développement compris.
+- **Ordre :** analyse des trois sujets → choix du C (intérêt pour le métier, backend que je peux maîtriser) → règles des 12 cas écrites **avant** le code → installation (Next.js, Vitest, Supabase, CI) → calcul des montants → types → moteur cas par cas, tests d'abord, cas obligatoires en premier → README.
+- **Blocage :** les notions comptables. J'ai d'abord calculé la TVA sur le TTC au lieu du HT.
+- **Abandons :** le schéma SQL (conçu, non codé), le bon cadeau polyvalent, la reconnaissance du chiffre d'affaires des stages et abonnements.
+- **IA :** utilisée pour comprendre les notions, relire mon code et, sur la fin, écrire des fonctions que j'ai ensuite relues.
+
+### 2. Tri des tickets
+
+**Du plus au moins envie :** 7 → 4 → 1 → 3 → 5 → 2 → 8 → 6
+
+Ce qui me motive, c'est de résoudre un problème concret qu'un utilisateur a vraiment vécu, et de voir le résultat chez lui : un retour client est la critique la plus utile, et y répondre, c'est ce qui fait qu'il continue d'utiliser le produit. D'où l'export comptable faux (7) et le filtre réclamé par les artisans (4) en tête, et les chantiers sans demande client immédiate (design system, API publique) en dernier.
+
+### 3. Mes deux premières semaines
+
+Je commence en bêta-testeur : je me mets à la place d'un artisan et je touche à tout (créer un cours, prendre une réservation, émettre une facture) pour comprendre le produit de bout en bout, tout en lisant les conventions de code et de commit et la façon dont les fonctionnalités sont découpées. Une fois les grandes lignes comprises, je demande à un développeur confirmé de m'accompagner sur les revues de code, pour comprendre chaque étape et les choix de l'équipe.
+
+### 4. La question que j'aurais posée
+
+**« Dans la base actuelle de Daisy, comment sont stockés les montants (en centimes entiers ou en décimaux) et les factures (modifiables ou verrouillées) ? »**
+
+**Ce que j'ai supposé à la place :** des montants en centimes entiers et des factures immuables. Tout mon moteur repose sur ces deux hypothèses. Si la base stockait déjà des montants en décimaux, ou si les factures pouvaient être modifiées, ce serait la première chose à discuter avant de brancher ce moteur sur l'existant.
